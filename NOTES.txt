@@ -1,0 +1,255 @@
+Refer => https://www.udemy.com/course/langchain/
+
+#* LangChain- Develop LLM powered applications with LangChain
+
+#? Section - 1 : Introduction
+
+#! Course Objectives
+
+*  Develop LLM powered applications with LangChain
+
+1) We can categorize LLM applications into 2 types:
+    * Agents
+    * Retrieval Augmentation Generation (RAG)
+
+2) Be effiecient with:
+    * LangChain Ecosystem: LangSmith (for tracing), LangChain Hub (for models), LangGraph (for workflow engineering), etc.
+    * Prompt Engineering
+    * Production
+
+3) Also know:
+    * Prompt engineering best practices
+    * Prompt engineering techniques
+    * History of prompting
+    * Production ready topics like testing, logging, monitoring, alerting, security, etc.
+
+4) Target Audience
+    * Software Engineers
+    * Data Scientists
+    * Data Engineers
+    * Data Analysts
+
+#? Section - 2 : Gist of LangChain
+
+#! What is LangChain - V1 
+
+LangChain is a comprehensive framework designed to simplify the development of applications powered by large language models (LLMs). It provides standardized interfaces and tools to build, deploy, and maintain LLM-powered applications effectively.
+
+The diagram (LangChain Image) illustrates LangChain's architecture, where:
+
+- LangChain serves as the central framework, providing the foundational infrastructure
+- LangGraph enables developers to build sophisticated, stateful applications with LLMs
+- LangSmith handles monitoring and evaluation of deployed applications
+
+Key features include:
+
+1. **Development Simplification**  - Standardized interfaces for LLM integration
+  - Extensive third-party integrations
+  - Comprehensive development toolkit
+
+2. **Core Capabilities**  - Integration with hundreds of LLM providers
+  - Support for embedding models and vector stores
+  - Built-in tools for common AI tasks
+
+3. **Practical Implementation**
+
+Simple setup example:
+```python
+pip install langchain-groq
+
+from langchain_groq import ChatGroq
+model = ChatGroq(model="llama3-8b-8192")
+```
+
+The framework supports various use cases including chatbots, question-answering systems, and document processing applications. Its modular design allows developers to build both simple prototypes and complex enterprise-level applications while maintaining scalability and reliability.
+
+#! What is LangChain - V2
+
+1) Definition and Purpose
+
+    * An open-source framework that simplifies building LLM-powered applications
+    * Provides tools and abstractions for creating complex LLM applications
+    * Enables developers to build LLM applications without requiring deep ML knowledge
+    * Most popular framework for developing LLM-powered applications
+
+2) Core Functionality
+
+    * Abstracts the complexity of data source integrations and prompt refining
+    * Enables combining LLMs with personal data sources (PDFs, emails, databases)
+    * Facilitates dynamic prompt construction based on user input
+    * Manages message history between users and AI
+    * Provides integration capabilities with external tools (Google Search, APIs)
+
+3) Key Modules and Features
+
+    Chat Models Module
+        * Abstracts interaction with LLMs
+        * Allows easy switching between different models
+        * Provides standardized interface across all LLM vendors
+        * Prevents vendor lock-in
+    Prompt Management System
+        * Handles prompt templates and optimization
+        * Supports dynamic injection of user input
+        * Enables prompt serialization
+        * Promotes application composability
+    Document Loaders
+        * Facilitates loading various data sources
+        * Unifies different data formats
+        * Provides consistent interface for document handling
+        * Streamlines data preprocessing for LLMs
+    Agent Ecosystem
+        * Supports building agentic applications
+        * Enables LLM reasoning capabilities
+        * Integrates tool invocation (search, database queries, email)
+        * Includes abstractions for agents, executors, and link graphs
+
+4) Community and Development
+
+    * Available on GitHub with open-source code
+    * Active community of contributors
+    * Thorough documentation and resources
+    * Regular updates and improvements
+    * Production-ready features including monitoring and tracing
+
+5) Development Benefits
+
+    * Reduces development complexity
+    * Provides modular architecture
+    * Offers extensive customization options
+    * Supports rapid prototyping
+    * Facilitates production deployment
+
+#! Project Setup
+
+1. Create directory named 1_ice_breaker
+2. python3 -m venv venv
+3. source venv/bin/activate
+4. pip install -r requirements.txt
+5. Create .env file
+6. Create ice_breaker_v1.py file
+
+Packages installed:
+    * langchain - used to build LLM-powered applications
+    * langchain-openai - integration with OpenAI LLMs
+    * langchain-groq - integration with Groq LLMs
+    * langchain-community - community extensions for LangChain like text splitters, etc.
+    * langchainhub - integration with LangChainHub for prompt templates
+    * python-decouple - used to manage environment variables
+
+#! Your First LangChain application - Chaining a simple prompt
+
+1) Gist of LangChain (Simple Application)
+    * Prompt template - they are used to create dynamic prompts for LLMs
+    * Chat model - wrappers used to interact with LLMs
+    * Chains - used to combine multile components together like connect prompt templates and chat models and create one single coherent application
+    * Working summary example
+
+#TODO => Refer => https://python.langchain.com/docs/concepts/
+
+```
+from decouple import config
+from langchain_core.prompts import PromptTemplate
+from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
+import openai
+
+information = """
+    Elon Reeve Musk is a businessman and U.S. Special Government employee, best known for his key roles in Tesla, Inc., SpaceX, and his ownership of Twitter. Musk is the wealthiest individual in the world; as of January 2025, Forbes estimates his net worth to be US$426 billion. Musk's actions and expressed views have further solidified his status as a public figure.A member of the wealthy South African Musk family, Musk was born in Pretoria before immigrating to Canada, acquiring its citizenship. He moved to California in 1995 to attend Stanford University, and with his brother Kimbal co-founded the software company Zip2, that was later acquired by Compaq in 1999. That same year, Musk co-founded X.com, a direct bank, that later formed PayPal. In 2002, Musk acquired U.S. citizenship, and eBay acquired PayPal. Using the money he made from the sale, Musk founded SpaceX, a spaceflight services company, in 2002. In 2004, Musk was an early investor in electric vehicle manufacturer Tesla and became its chairman and later CEO. In 2018, the U.S. Securities and Exchange Commission (SEC) sued Musk, alleging he falsely announced that he had secured funding for a private takeover of Tesla, stepped down as chairman, and paid a fine. In 2022, he acquired Twitter, and rebranded the service as X the following year. In January 2025, Musk was appointed director of the Department of Government Efficiency as a special government employee. 
+"""
+
+if __name__ == "__main__":
+    print("Hello LangChain!")
+
+    summary_template = """
+        Given {information} about a person, create:
+
+        1. A 2-3 sentence summary including:
+            - Current role, key achievements, and current status.
+        2. Two verified facts with dates/details.
+
+        Format with markdown headers and bullet points:
+        ## Summary
+        ## Interesting Facts
+        1. [Fact 1]
+        2. [Fact 2]
+
+        Ensure professional tone and factual accuracy. 
+    """
+
+
+    summary_prompt_template = PromptTemplate(
+        template=summary_template, input_variables=["information"]
+    )
+
+    # llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0, api_key=config("OPENAI_API_KEY"))
+    llm = ChatGroq(model="llama3-8b-8192", temperature=0, api_key=config("GROQ_API_KEY"))
+
+    chain = summary_prompt_template | llm
+
+    #! For OpenAI
+    # try:
+    #     res = chain.invoke(input={"information": information})
+    #     print(res)
+    # except openai.RateLimitError:
+    #     print("Rate limit exceeded. Please wait and try again later.")
+        
+    #! For Groq
+    try:
+        res = chain.invoke(input={"information": information})
+        print(res.content)
+    except Exception as e:  # Catching general exception
+        print(f"Error: {str(e)}")
+        if "rate limit" in str(e).lower():
+            print("Rate limit exceeded. Please wait and try again later.")
+```
+
+For Groq Integration => https://python.langchain.com/docs/integrations/chat/groq/
+
+#! Using Open Source Models With LangChain (Ollama, Llama3, Mistral)
+
+1. Download Ollama in linux => curl -fsSL https://ollama.com/install.sh | sh
+2. Open terminal and type => ollama run llama3
+3. pip install langchain-ollama
+4. Create ice_breaker_v2.py and write the latest code
+
+For Ollama Integration => https://python.langchain.com/docs/integrations/chat/ollama/
+
+* LangChain also offers output parsers which can be used to parse the output of LLMs to extract specific information. This can be used rather than printing the output directly to the console.
+
+```
+from decouple import config
+from langchain_core.prompts import PromptTemplate
+from langchain_ollama import ChatOllama
+from langchain_core.output_parsers import StrOutputParser
+
+information = """
+    Pizza without cheese
+"""
+
+if __name__ == "__main__":
+    print("Hello LangChain!" + "\n")
+
+    summary_template = """
+        Write a very short song on the topic : {information}
+    """
+
+
+    summary_prompt_template = PromptTemplate(
+        template=summary_template, input_variables=["information"]
+    )
+
+    llm = ChatOllama(model="llama3", temperature=0)
+
+    # chain = summary_prompt_template | llm 
+    chain = summary_prompt_template | llm | StrOutputParser()
+    
+    #! For Ollama
+    try:
+        res = chain.invoke(input={"information": information})
+        # print(res.content)
+        print(res)
+    except Exception as e:
+        print(f"Error: {str(e)}")
+```
+
+------------------------------------------------------------------------------------------------------------------------------
