@@ -29,6 +29,8 @@ Refer => https://www.udemy.com/course/langchain/
     * Data Engineers
     * Data Analysts
 
+------------------------------------------------------------------------------------------------------------------------------
+
 #? Section - 2 : Gist of LangChain
 
 #! What is LangChain - V1 
@@ -253,3 +255,271 @@ if __name__ == "__main__":
 ```
 
 ------------------------------------------------------------------------------------------------------------------------------
+
+#? Section - 3 : Ice Breaker Real World Generative AI Agent Application
+
+#! LangChain Topics Covered
+    * Chains
+    * Agents
+    * Custom Agents
+    * Tools, Toolkit
+    * Output Parsers
+
+#! Integrating LinkedIn Data Processing - Part 1 - Scraping
+
+Topics covered:
+    * Web Scraping - Scrapin.io API
+    * Data Cleanup
+    * Testing 
+
+1. Use Scrapin.io API to scrape LinkedIn profiles
+2. Create a file named linkedin.py 
+3. For testing purposes, create a github gist and store the scraped json data in the gist to avoid API rate limits
+4. Create ice_breaker_v3.py and write the latest code
+
+** linkedin.py **
+```
+import os
+import requests
+from decouple import config
+
+def scrape_linkedin_profile(linkedin_profile_url: str, mock: bool = True):
+    """scrape information from LinkedIn profiles,
+    Manually scrape the information from the LinkedIn profile"""
+
+    if mock:
+        linkedin_profile_url = "https://gist.githubusercontent.com/Ayush29Ayush/c42be02c67249609306805ccf8434e2a/raw/de55b3daad3bd36130f1250eb5dc507f8f444edf/ayush-senapati-linkedin-scraping.json"
+        response = requests.get(linkedin_profile_url,timeout=10)
+    else:
+        api_endpoint = "https://api.scrapin.io/enrichment/profile"
+        params = {
+            "apikey": config("SCRAPIN_API_KEY"),
+            "linkedInUrl": linkedin_profile_url,
+        }
+        response = requests.get(api_endpoint,params=params,timeout=10)
+
+    data = response.json().get("person")
+
+    filtered_data = {}
+
+    for key, value in data.items():
+        if value not in ([], "", "", None) and key != "certifications":
+            filtered_data[key] = value
+
+    # print("Filtered Data =>", filtered_data)
+    return filtered_data
+
+if __name__ == "__main__":
+    print(scrape_linkedin_profile(linkedin_profile_url="https://www.linkedin.com/in/ayush-senapati-a531b8145/",mock=True))
+```
+
+** ice_breaker_v3.py **
+```
+from decouple import config
+from langchain_core.prompts import PromptTemplate
+from langchain_groq import ChatGroq
+from langchain_core.output_parsers import StrOutputParser
+
+from third_parties.linkedin import scrape_linkedin_profile
+
+if __name__ == "__main__":
+    print("Hello LangChain!")
+
+    summary_template = """
+        Based on the LinkedIn information provided about the individual: {information}, please generate the following:
+
+        1. A concise professional summary.
+        2. A detailed overview of their current job role, 
+        3. A detailed overview of their key achievements and professional status.
+        4. Two intriguing and unique facts about the individual.
+
+        Thank you!
+    """
+
+    summary_prompt_template = PromptTemplate(
+        template=summary_template, input_variables=["information"]
+    )
+
+    llm = ChatGroq(model="llama3-8b-8192", temperature=0, api_key=config("GROQ_API_KEY"))
+
+    chain = summary_prompt_template | llm | StrOutputParser()
+    
+    linkedin_data = scrape_linkedin_profile(linkedin_profile_url="https://www.linkedin.com/in/ayush-senapati-a531b8145/", mock=True)
+
+    try:
+        res = chain.invoke(input={"information": linkedin_data})
+        print(res)
+    except Exception as e:
+        print(f"Error: {str(e)}")
+```
+
+#! Linkedin Data Processing - Part 2 - Agents Theory
+
+* Agents - They are used to create applications that can perform tasks automatically based on user input
+* Think of agents as bots, they will perform actions on your behalf and it is able to interact with the llms.
+* Agents break down complex tasks into smaller subtasks and then combine the results to get the final output.
+#TODO => Refer image => 04. LangChain Agents.png
+
+#! Linkedin Data Processing- Part 3: Tools, Agent Executor, create_react_agent
+
+* Tools - Tools are used to perform actions on your behalf and it is able to interact with the llms.
+* Agent Executor - Agent Executors are used to execute agents and it is able to interact with the llms.
+* create_react_agent - It is a function that creates a React agent.
+
+1. Create a agents directory and create a file named linkedin_lookup_agent.py
+** linkedin_lookup_agent.py **
+```
+from decouple import config
+from langchain_groq import ChatGroq
+from langchain.prompts.prompt import PromptTemplate
+from langchain_core.tools import Tool
+from langchain.agents import (
+    create_react_agent,
+    AgentExecutor,
+)
+from langchain import hub
+```
+
+#! Linkedin Data Processing- Part 4: Custom Search Agent Implementation
+
+1. Create a tools directory and create a file named tools.py
+2. We will be using Tavily API to search for Linkedin Profiles
+3. Complete the code in linkedin_lookup_agent.py and use the get_profile_url_tavily function from tools.py
+
+** tools.py **
+```
+from langchain_community.tools.tavily_search import TavilySearchResults
+# from langchain.utilities.tavily_search import TavilySearchAPIWrapper
+from langchain_community.utilities.tavily_search import TavilySearchAPIWrapper
+from decouple import config
+
+def get_profile_url_tavily(name: str):
+    """
+    Searches for a person's LinkedIn or Twitter profile URL using Tavily Search.
+    
+    Args:
+        name (str): Full name of the person to search for
+        
+    Returns:
+        str: URL of the matching social media profile
+    """
+        
+    # Retrieve Tavily API key from environment configuration
+    tavily_api_key = config("TAVILY_API_KEY")
+    
+    # Initialize API wrapper with authentication credentials
+    api_wrapper = TavilySearchAPIWrapper(tavily_api_key=tavily_api_key)
+    
+    # Create search client with authenticated wrapper
+    search = TavilySearchResults(api_wrapper=api_wrapper)
+    
+    # Execute search with formatted query string
+    res = search.run(f"{name}")
+    
+    # Extract and return the first matching URL
+    return res[0]["url"]
+```
+
+** linkedin_lookup_agent.py **
+```
+import sys
+import os
+
+# Add parent directory to path for module imports
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from decouple import config  # For secure environment variable handling
+from langchain_groq import ChatGroq  # Groq LLM integration
+from langchain.prompts.prompt import PromptTemplate  # Template system for prompts
+from langchain_core.tools import Tool  # Base class for custom tools
+from langchain.agents import (  # Agent creation utilities
+    create_react_agent,  # Creates a reactive agent
+    AgentExecutor,  # Executes agent actions
+)
+from tools.tools import get_profile_url_tavily  # Custom tool for LinkedIn searching
+from langchain import hub  # Hub for loading predefined prompts
+
+
+def lookup(name: str) -> str:
+    """
+    Looks up a person's LinkedIn profile URL using a combination of LLM inference
+    and web searching.
+
+    Args:
+        name (str): Full name of the person to look up
+
+    Returns:
+        str: LinkedIn profile URL
+    """
+    # Initialize Groq LLM model with temperature=0 for deterministic responses
+    llm = ChatGroq(
+        model="llama3-8b-8192", temperature=0, api_key=config("GROQ_API_KEY")
+    )
+
+    # Define prompt template for LinkedIn URL extraction
+    # This template expects a single variable {name_of_person}
+    template = """given the full name {name_of_person} I want you to get it me a link
+                 to their Linkedin profile page. Your answer should contain only a URL"""
+
+    # Create template instance with variable mapping
+    prompt_template = PromptTemplate(
+        template=template, input_variables=["name_of_person"]
+    )
+
+    # Define custom tool for LinkedIn profile searching
+    tools_for_agent = [
+        Tool(
+            name="Crawl Google for linkedin profile page",
+            func=get_profile_url_tavily,  # Pass function reference without parentheses
+            description="useful for when you need get the Linkedin Page URL",
+        )
+    ]
+
+    # Load predefined react prompt template
+    react_prompt = hub.pull("hwchase17/react")
+
+    # Create agent with LLM, tools, and prompt
+    agent = create_react_agent(llm=llm, tools=tools_for_agent, prompt=react_prompt)
+
+    # Create executor instance for running agent actions
+    agent_executor = AgentExecutor(
+        agent=agent, tools=tools_for_agent, verbose=True  # Enable detailed logging
+    )
+
+    # Execute the agent with formatted prompt
+    result = agent_executor.invoke(
+        input={"input": prompt_template.format_prompt(name_of_person=name)}
+    )
+
+    # Print result for debugging
+    # print("Linkedin Lookup Agent Result =>", result)
+
+    # Extract and return the LinkedIn URL
+    linked_profile_url = result["output"]
+    return linked_profile_url
+
+
+if __name__ == "__main__":
+    # Example usage with test case
+    print(lookup(name="Ayush Senapati Cozentus VIT"))
+```
+
+* Read the comments in linkedin_lookup_agent.py file to understand the code implementation
+
+#! Linkedin Data Processing- Part 5: Custom Search Agent Testin
+
+1. Create ice_breaker_v4.py file
+2. Integrate the linkedin_lookup_agent.py file which returns the user's Linkedin Profile URL
+3. Use that url output from linkedin_lookup_agent.py and pass it to scrape_linkedin_profile function
+
+#TODO => Summary:
+1) We created a search agent which has access to a search tool
+2) We used the llm in order to reason and decide which tool to use
+3) The agent keeps on quering the search tool until it gets the desired output
+4) We used the output of the search agent to pass it to the scrape_linkedin_profile function
+5) We used the output of scrape_linkedin_profile to print the summary using the chain method which we wrote
+
+#TODO => Overall order of Execution:
+1) Create a tools directory and create a file named tools.py
+2) Create a agents directory and create a file named linkedin_lookup_agent.py
+3) Create a ice_breaker_v4.py file
+
