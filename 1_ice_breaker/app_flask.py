@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from ice_breaker_v6 import ice_break_with
+from ice_breaker_v7 import ice_break_with
 import logging
 from logging.handlers import RotatingFileHandler
 
