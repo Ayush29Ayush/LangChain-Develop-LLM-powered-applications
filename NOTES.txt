@@ -675,3 +675,38 @@ Now we will:
 * Create a file named ice_breaker_v6.py
 * Create a file named app_flask.py
 * create a html file named index.html
+
+#! Tracing application with LangSmith
+
+LangSmith is a tool for tracing LLM applications. It enables you to monitor and evaluate the performance and behavior of your LLM-powered applications. It provides a rich set of features, including:
+
+1. **Integration**: LangSmith can be seamlessly integrated into your application's codebase, making it easy to trace and monitor LLM interactions.
+2. **Real-time monitoring**: LangSmith provides real-time monitoring capabilities, allowing you to monitor and analyze the performance of your LLM-powered applications.
+3. **Performance analysis**: LangSmith can help you identify performance bottlenecks and optimize your LLM-powered applications for better performance.
+
+Use LangSmith if you want to trace:
+    * LLM calls
+    * Tool usage
+    * LLM model latency
+    * Token count
+    * Cost analysis
+
+Just add these to your .env:
+```
+LANGSMITH_TRACING=true
+LANGSMITH_ENDPOINT="https://api.smith.langchain.com"
+LANGSMITH_API_KEY=YOUR_VALUE
+LANGSMITH_PROJECT="Ice Breaker"
+```
+
+and use them in your ice_breaker_v7 code file:
+```
+os.environ["LANGSMITH_TRACING"] = config("LANGSMITH_TRACING")
+os.environ["LANGSMITH_ENDPOINT"] = config("LANGSMITH_ENDPOINT")
+os.environ["LANGSMITH_API_KEY"] = config("LANGSMITH_API_KEY")
+os.environ["LANGSMITH_PROJECT"] = config("LANGSMITH_PROJECT")
+```
+
+* refer LangSmith Docs => https://smith.langchain.com
+
+------------------------------------------------------------------------------------------------------------------------------
