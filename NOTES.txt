@@ -710,3 +710,9 @@ os.environ["LANGSMITH_PROJECT"] = config("LANGSMITH_PROJECT")
 * refer LangSmith Docs => https://smith.langchain.com
 
 ------------------------------------------------------------------------------------------------------------------------------
+
+#? Section - 4 : Diving Deep into ReAct Agents - What is the magic?
+
+#! What are we building? ReAct AgentExecutor from scratch
+
+* We use create_react_agent function from langchain.agents but now we will implement it from scratch
