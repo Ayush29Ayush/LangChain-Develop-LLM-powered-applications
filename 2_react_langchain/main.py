@@ -1,8 +1,12 @@
+from typing import List, Union
 from langchain.agents import tool
 from langchain.prompts.prompt import PromptTemplate
 from langchain.tools.render import render_text_description
 from langchain_groq import ChatGroq
 from decouple import config
+from langchain.agents.output_parsers import ReActSingleInputOutputParser
+from langchain.schema import AgentAction, AgentFinish
+from langchain.tools import Tool
 
 
 @tool
@@ -14,6 +18,12 @@ def get_text_length(text: str) -> int:
     text = text.strip("'\n").strip('"')
     return len(text)
 
+
+def find_tool_by_name(tools: List[Tool], tool_name: str) -> Tool:
+    for tool in tools:
+        if tool.name == tool_name:
+            return tool
+    raise ValueError(f"Tool {tool_name} not found in tools: {tools}")
 
 if __name__ == "__main__":
     print("Hello ReAct LangChain!" + "\n")
@@ -54,5 +64,18 @@ if __name__ == "__main__":
         api_key=config("GROQ_API_KEY"),
         stop_sequences=["\nObservation"],
     )
+
+    # print(prompt)
+    agent = {"input": lambda x: x["input"]} | prompt | llm | ReActSingleInputOutputParser()
+
+    # res = agent.invoke({"input": "What is the length of 'Human' in characters?"})
+    agent_step: Union[AgentAction, AgentFinish] = agent.invoke({"input": "What is the length in characters of text: Human?"})
+    print(agent_step)
     
-    print(prompt)
+    if isinstance(agent_step, AgentFinish):
+        tool_name = agent_step.tool
+        tool_to_use = find_tool_by_name(tools=tools, tool_name=tool_name)
+        tool_input = agent_step.tool_input
+        
+        observation = tool_to_use.func(str(tool_input))
+        print(f"Observation: {observation}")
