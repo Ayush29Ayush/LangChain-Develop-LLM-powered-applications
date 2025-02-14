@@ -828,3 +828,11 @@ We will be using LangChain Expression Language(LCEL)
         * Fallbacks
         * Parallelism
         * Seamless LangSmith Tracing Integration
+
+#! 30. AgentAction, AgentFinish, ReAct Loop
+
+#! 31. CallbackHandlers, ReAct Prompt and finalizing the ReAct Agent loop
+
+#! 32. Integration with LangSmith
+
+* Refer final code and .env variables
