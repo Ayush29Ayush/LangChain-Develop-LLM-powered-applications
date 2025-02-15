@@ -836,3 +836,53 @@ We will be using LangChain Expression Language(LCEL)
 #! 32. Integration with LangSmith
 
 * Refer final code and .env variables
+
+------------------------------------------------------------------------------------------------------------------------------
+
+#? Section - 5 : The Gist of RAG - Embeddings, Vector Databases and Retrieval Augmentation Generation
+
+#! 33. Medium Analyzer - Boilerplate Project Setup
+
+This part includes:
+    * Installing dependencies
+    * Creating a pinecone index
+    * Setting up env variables
+    * Creating a mediumblog.txt file with a medium blog
+
+* Create a new directory named 3_intro_to_vector_dbs and setup env variables in .env file
+* Install all the required packages from requirements.txt
+
+#TODO => Refer => https://medium.com/@EjiroOnose/vector-database-what-is-it-and-why-you-should-know-it-ae7e7dca82a4#:~:text=Vector%20databases%20can%20be%20used,not%20all%20vectors%20are%20embeddings.
+
+* Create a ingestion.py file and write the code
+* Refer Images/08. LangChain Pinecone.png
+
+#! 34. Medium Analyzer- Class Review: TextLoader,TextSplitter,OpenAIEmbeddings,Pinecone
+
+This part includes learning about:
+    * Loading the mediumblog.txt file (TextLoader)
+    * Splitting the blog into smaller chunks (TextSplitter)
+    * Embed the chunks and get vectors (OpenAIEmbeddings)
+    * Store the embeddings in Pinecone vectorstore (PineconeVectorStore)
+
+#TODO => Refer => https://python.langchain.com/docs/how_to/#text-splitters
+#TODO => Refer => https://python.langchain.com/docs/how_to/character_text_splitter/
+#TODO => Refer => https://python.langchain.com/docs/integrations/vectorstores/pinecone/
+#TODO => Refer => https://python.langchain.com/docs/concepts/#document-loaders
+#TODO => Refer => https://python.langchain.com/docs/how_to/embed_text/
+
+#! 35. Medium Analyzer- Ingestion Implementation
+
+* refer code
+
+#! 36. Medium Analyzer- Retrieval Implementation Implementation with chains
+
+* refer code
+
+#! 37. Medium Analyzer- Retrieval Implementation Implementation with LCEL
+
+* refer video
+
+#! 38. Chat With Your PDF- FAISS Local Vectorstore
+
+* refer video
