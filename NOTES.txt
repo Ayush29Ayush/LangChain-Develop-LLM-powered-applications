@@ -886,3 +886,7 @@ This part includes learning about:
 #! 38. Chat With Your PDF- FAISS Local Vectorstore
 
 * refer video
+
+------------------------------------------------------------------------------------------------------------------------------
+
+REST OF THE CONTENT NOT DOCUMENTED, REFER COURSE
